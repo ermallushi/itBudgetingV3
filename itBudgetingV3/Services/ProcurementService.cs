@@ -139,11 +139,19 @@ public class ProcurementService : IProcurementService
     // ── Budget consumption ──────────────────────────────────────────────
 
     public async Task<decimal> GetTotalCommittedAsync(int budgetLineId)
-        => await _db.PurchaseRequests
+    {
+        // Get approved PR IDs for this budget line
+        var approvedPRIds = await _db.PurchaseRequests
             .Where(pr => pr.BudgetLineId == budgetLineId && pr.Status == PRStatus.Approved)
-            .SumAsync(pr => pr.PurchaseOrders
-                .Where(po => po.Status != POStatus.Cancelled)
-                .Sum(po => po.ApprovedAmount));
+            .Select(pr => pr.Id)
+            .ToListAsync();
+
+        if (!approvedPRIds.Any()) return 0;
+
+        return await _db.PurchaseOrders
+            .Where(po => approvedPRIds.Contains(po.PurchaseRequestId) && po.Status != POStatus.Cancelled)
+            .SumAsync(po => po.ApprovedAmount);
+    }
 
     public async Task<decimal> GetTotalRemainingBudgetAsync(int budgetLineId)
     {
