@@ -1,0 +1,67 @@
+@model itBudgetingV3.ViewModels.TransferCreateViewModel
+@{
+    ViewData["Title"] = "New Budget Transfer";
+    var months = new[] { "January","February","March","April","May","June",
+                         "July","August","September","October","November","December" };
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <h4><i class="bi bi-arrow-left-right me-2"></i>New Budget Transfer</h4>
+        <hr/>
+
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-1"></i>
+            Transfers within the same category (CapEx→CapEx or OpEx→OpEx) are applied immediately.
+            <strong>Cross-category transfers require manager approval.</strong>
+        </div>
+
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="BudgetVersionId" />
+            <input type="hidden" asp-for="Transfer.BudgetVersionId" value="@Model.BudgetVersionId" />
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Source Budget Line</label>
+                <select asp-for="Transfer.SourceBudgetLineId" class="form-select" required>
+                    <option value="">-- Select source line --</option>
+                    @foreach (var l in Model.BudgetLines)
+                    {
+                        <option value="@l.Id">[@l.Category] @l.Project / @l.Vendor (@l.CostCenterCode)</option>
+                    }
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Target Budget Line</label>
+                <select asp-for="Transfer.TargetBudgetLineId" class="form-select" required>
+                    <option value="">-- Select target line --</option>
+                    @foreach (var l in Model.BudgetLines)
+                    {
+                        <option value="@l.Id">[@l.Category] @l.Project / @l.Vendor (@l.CostCenterCode)</option>
+                    }
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Month</label>
+                <select asp-for="Transfer.Month" class="form-select" required>
+                    @foreach (var p in Model.Periods)
+                    {
+                        <option value="@p.Month">@months[p.Month - 1]</option>
+                    }
+                </select>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Transfer.Amount" class="form-label fw-bold">Amount (€)</label>
+                <input asp-for="Transfer.Amount" class="form-control" type="number" step="0.01" min="0.01" required />
+            </div>
+            <div class="mb-3">
+                <label asp-for="Transfer.Reason" class="form-label fw-bold">Reason</label>
+                <textarea asp-for="Transfer.Reason" class="form-control" rows="2" required></textarea>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-arrow-left-right me-1"></i>Submit Transfer</button>
+                <a asp-action="Index" asp-route-versionId="@Model.BudgetVersionId" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

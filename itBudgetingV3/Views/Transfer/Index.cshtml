@@ -1,0 +1,82 @@
+@model itBudgetingV3.ViewModels.TransferListViewModel
+@{
+    ViewData["Title"] = "Budget Transfers";
+    var months = new[] { "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec" };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h4><i class="bi bi-arrow-left-right me-2"></i>Budget Transfers – @Model.Version.Name</h4>
+    </div>
+    <div>
+        @if (Model.Version.Status == itBudgetingV3.Models.BudgetVersionStatus.Draft)
+        {
+            <a asp-action="Create" asp-route-versionId="@Model.Version.Id" class="btn btn-sm btn-success me-2">
+                <i class="bi bi-plus-lg"></i> New Transfer
+            </a>
+        }
+        <a asp-controller="Budget" asp-action="Grid" asp-route-versionId="@Model.Version.Id"
+           class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back</a>
+    </div>
+</div>
+
+<table class="table table-hover table-bordered table-sm">
+    <thead class="table-dark">
+        <tr>
+            <th>From (Source)</th>
+            <th>To (Target)</th>
+            <th>Month</th>
+            <th class="text-end">Amount (€)</th>
+            <th>Cross-Cat</th>
+            <th>Status</th>
+            <th>Reason</th>
+            <th>Created</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var t in Model.Transfers)
+        {
+            var statusClass = t.Status switch
+            {
+                itBudgetingV3.Models.TransferStatus.Pending => "bg-warning text-dark",
+                itBudgetingV3.Models.TransferStatus.Approved => "bg-success",
+                itBudgetingV3.Models.TransferStatus.Rejected => "bg-danger",
+                _ => "bg-secondary"
+            };
+            <tr>
+                <td><small>@t.SourceBudgetLine?.Project</small></td>
+                <td><small>@t.TargetBudgetLine?.Project</small></td>
+                <td>@months[t.Month - 1]</td>
+                <td class="text-end fw-bold">@t.Amount.ToString("N2")</td>
+                <td class="text-center">@(t.IsCrossCategory ? "⚠️ Yes" : "No")</td>
+                <td><span class="badge @statusClass">@t.Status</span></td>
+                <td><small>@t.Reason</small></td>
+                <td><small>@t.CreatedAt.ToString("dd MMM")<br/>@t.CreatedBy</small></td>
+                <td>
+                    @if (t.Status == itBudgetingV3.Models.TransferStatus.Pending &&
+                         (User.IsInRole("Manager") || User.IsInRole("Admin")))
+                    {
+                        <form asp-action="Approve" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@t.Id" />
+                            <input type="hidden" name="versionId" value="@Model.Version.Id" />
+                            <button class="btn btn-sm btn-success">Approve</button>
+                        </form>
+                        <form asp-action="Reject" method="post" class="d-inline ms-1">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@t.Id" />
+                            <input type="hidden" name="versionId" value="@Model.Version.Id" />
+                            <button class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Reject this transfer?')">Reject</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+        @if (!Model.Transfers.Any())
+        {
+            <tr><td colspan="9" class="text-center text-muted py-4">No transfers found.</td></tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,83 @@
+@model itBudgetingV3.ViewModels.ProcurementDashboardViewModel
+@{
+    ViewData["Title"] = "Procurement Dashboard";
+    var version = ViewBag.Version as itBudgetingV3.Models.BudgetVersion;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4><i class="bi bi-receipt me-2"></i>Procurement Dashboard – @version?.Name</h4>
+    <a asp-controller="Budget" asp-action="Grid" asp-route-versionId="@version?.Id"
+       class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Back to Grid</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover table-bordered table-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>PR #</th>
+                <th>Description</th>
+                <th class="text-end">Amount (€)</th>
+                <th>Status</th>
+                <th>POs</th>
+                <th>Approved PO (€)</th>
+                <th>Used (€)</th>
+                <th>Remaining (€)</th>
+                <th>SharePoint</th>
+                <th>Created</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var pr in Model.PurchaseRequests)
+            {
+                var approvedPO = pr.PurchaseOrders.Where(p => p.Status != itBudgetingV3.Models.POStatus.Cancelled).Sum(p => p.ApprovedAmount);
+                var usedPO = pr.PurchaseOrders.Where(p => p.Status != itBudgetingV3.Models.POStatus.Cancelled).Sum(p => p.UsedAmount);
+                var remainingPO = approvedPO - usedPO;
+                var statusClass = pr.Status switch
+                {
+                    itBudgetingV3.Models.PRStatus.Draft => "bg-secondary",
+                    itBudgetingV3.Models.PRStatus.Submitted => "bg-warning text-dark",
+                    itBudgetingV3.Models.PRStatus.Approved => "bg-success",
+                    itBudgetingV3.Models.PRStatus.Cancelled => "bg-danger",
+                    _ => "bg-secondary"
+                };
+                <tr>
+                    <td>
+                        <a asp-action="POs" asp-route-prId="@pr.Id">@pr.PRNumber</a>
+                    </td>
+                    <td>@pr.Description</td>
+                    <td class="text-end">@pr.Amount.ToString("N0")</td>
+                    <td><span class="badge @statusClass">@pr.Status</span></td>
+                    <td class="text-center">@pr.PurchaseOrders.Count</td>
+                    <td class="text-end">@approvedPO.ToString("N0")</td>
+                    <td class="text-end">@usedPO.ToString("N0")</td>
+                    <td class="text-end @(remainingPO < 0 ? "text-danger fw-bold" : "")">@remainingPO.ToString("N0")</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(pr.SharePointUrl))
+                        {
+                            <a href="@pr.SharePointUrl" target="_blank" class="btn btn-xs btn-outline-info py-0"><i class="bi bi-box-arrow-up-right"></i></a>
+                        }
+                    </td>
+                    <td><small>@pr.CreatedAt.ToString("dd MMM")<br/>@pr.CreatedBy</small></td>
+                </tr>
+            }
+            @if (!Model.PurchaseRequests.Any())
+            {
+                <tr><td colspan="10" class="text-center text-muted py-4">No purchase requests found.</td></tr>
+            }
+        </tbody>
+        @if (Model.PurchaseRequests.Any())
+        {
+            <tfoot class="table-secondary fw-bold">
+                <tr>
+                    <td colspan="2">Totals</td>
+                    <td class="text-end">@Model.PurchaseRequests.Sum(p => p.Amount).ToString("N0")</td>
+                    <td colspan="2"></td>
+                    <td class="text-end">@Model.PurchaseRequests.Sum(p => p.PurchaseOrders.Where(o => o.Status != itBudgetingV3.Models.POStatus.Cancelled).Sum(o => o.ApprovedAmount)).ToString("N0")</td>
+                    <td class="text-end">@Model.PurchaseRequests.Sum(p => p.PurchaseOrders.Where(o => o.Status != itBudgetingV3.Models.POStatus.Cancelled).Sum(o => o.UsedAmount)).ToString("N0")</td>
+                    <td class="text-end"></td>
+                    <td colspan="2"></td>
+                </tr>
+            </tfoot>
+        }
+    </table>
+</div>

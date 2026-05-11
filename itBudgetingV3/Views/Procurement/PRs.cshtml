@@ -1,0 +1,103 @@
+@model IEnumerable<itBudgetingV3.Models.PurchaseRequest>
+@{
+    ViewData["Title"] = "Purchase Requests";
+    var line = ViewBag.Line as itBudgetingV3.Models.BudgetLine;
+    decimal remaining = ViewBag.RemainingBudget;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h4><i class="bi bi-receipt me-2"></i>Purchase Requests</h4>
+        <small class="text-muted">Line: @line?.Project / @line?.Vendor</small>
+    </div>
+    <div>
+        <a asp-action="CreatePR" asp-route-budgetLineId="@line?.Id" class="btn btn-sm btn-success me-2">
+            <i class="bi bi-plus-lg"></i> New PR
+        </a>
+        <a asp-controller="Budget" asp-action="Grid" asp-route-versionId="@line?.BudgetVersionId"
+           class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Grid
+        </a>
+    </div>
+</div>
+
+<div class="alert @(remaining < 0 ? "alert-danger" : "alert-success")">
+    <i class="bi @(remaining < 0 ? "bi-exclamation-triangle" : "bi-check-circle") me-1"></i>
+    Total Budget: <strong>€ @((line!.Jan+line.Feb+line.Mar+line.Apr+line.May+line.Jun+line.Jul+line.Aug+line.Sep+line.Oct+line.Nov+line.Dec).ToString("N0"))</strong>
+    | Remaining: <strong>€ @remaining.ToString("N0")</strong>
+    @if (remaining < 0) { <span class="badge bg-danger ms-2">OVER BUDGET</span> }
+</div>
+
+<table class="table table-hover table-bordered">
+    <thead class="table-secondary">
+        <tr>
+            <th>PR #</th>
+            <th>Description</th>
+            <th class="text-end">Amount (€)</th>
+            <th>Status</th>
+            <th>SharePoint</th>
+            <th>Created</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var pr in Model)
+        {
+            var statusClass = pr.Status switch
+            {
+                itBudgetingV3.Models.PRStatus.Draft => "bg-secondary",
+                itBudgetingV3.Models.PRStatus.Submitted => "bg-warning text-dark",
+                itBudgetingV3.Models.PRStatus.Approved => "bg-success",
+                itBudgetingV3.Models.PRStatus.Cancelled => "bg-danger",
+                _ => "bg-secondary"
+            };
+            <tr>
+                <td><strong>@pr.PRNumber</strong></td>
+                <td>@pr.Description</td>
+                <td class="text-end">@pr.Amount.ToString("N2")</td>
+                <td><span class="badge @statusClass">@pr.Status</span></td>
+                <td>
+                    @if (!string.IsNullOrEmpty(pr.SharePointUrl))
+                    {
+                        <a href="@pr.SharePointUrl" target="_blank" class="btn btn-xs btn-outline-info py-0">
+                            <i class="bi bi-box-arrow-up-right"></i>
+                        </a>
+                    }
+                </td>
+                <td><small>@pr.CreatedAt.ToString("dd MMM yyyy")<br/>@pr.CreatedBy</small></td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <a asp-action="POs" asp-route-prId="@pr.Id" class="btn btn-outline-info" title="View POs">
+                            <i class="bi bi-file-earmark-text"></i> POs
+                        </a>
+                        @if (pr.Status == itBudgetingV3.Models.PRStatus.Submitted &&
+                             (User.IsInRole("Manager") || User.IsInRole("Admin")))
+                        {
+                            <form asp-action="ApprovePR" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@pr.Id" />
+                                <input type="hidden" name="budgetLineId" value="@line?.Id" />
+                                <button class="btn btn-success" type="submit">Approve</button>
+                            </form>
+                        }
+                        @if (pr.Status != itBudgetingV3.Models.PRStatus.Cancelled &&
+                             (User.IsInRole("Manager") || User.IsInRole("Admin")))
+                        {
+                            <form asp-action="CancelPR" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@pr.Id" />
+                                <input type="hidden" name="budgetLineId" value="@line?.Id" />
+                                <button class="btn btn-outline-danger" type="submit"
+                                        onclick="return confirm('Cancel this PR?')">Cancel</button>
+                            </form>
+                        }
+                    </div>
+                </td>
+            </tr>
+        }
+        @if (!Model.Any())
+        {
+            <tr><td colspan="7" class="text-center text-muted py-4">No purchase requests yet.</td></tr>
+        }
+    </tbody>
+</table>

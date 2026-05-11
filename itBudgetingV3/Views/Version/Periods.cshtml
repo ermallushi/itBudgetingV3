@@ -1,0 +1,49 @@
+@model itBudgetingV3.ViewModels.PeriodManagementViewModel
+@{
+    ViewData["Title"] = $"Manage Periods – {Model.Version.Name}";
+    var months = new[] { "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec" };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2><i class="bi bi-calendar-lock me-2"></i>Period Control – @Model.Version.Name</h2>
+    <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back</a>
+</div>
+
+<div class="alert alert-info">
+    <i class="bi bi-info-circle me-1"></i>
+    Closed periods are <strong>read-only</strong>. Users cannot edit monthly values for locked months.
+    Revision type: <strong>@Model.Version.RevisionType</strong> (@Model.Version.ClosedMonths closed + @Model.Version.OpenMonths open).
+</div>
+
+<div class="row g-3">
+    @foreach (var period in Model.Periods.OrderBy(p => p.Month))
+    {
+        var isOpen = period.IsOpen;
+        <div class="col-md-2 col-sm-3">
+            <div class="card @(isOpen ? "border-success" : "border-secondary")">
+                <div class="card-header text-center fw-bold @(isOpen ? "bg-success text-white" : "bg-secondary text-white")">
+                    @months[period.Month - 1]
+                </div>
+                <div class="card-body text-center py-2">
+                    <span class="badge @(isOpen ? "bg-success" : "bg-secondary") fs-6">
+                        @(isOpen ? "Open" : "Closed")
+                    </span>
+                    @if (!isOpen && period.ClosedAt.HasValue)
+                    {
+                        <div class="small text-muted mt-1">@period.ClosedAt.Value.ToString("dd MMM")</div>
+                    }
+                    <form asp-action="TogglePeriod" method="post" class="mt-2">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="versionId" value="@Model.Version.Id" />
+                        <input type="hidden" name="month" value="@period.Month" />
+                        <input type="hidden" name="isOpen" value="@(!isOpen)" />
+                        <button type="submit" class="btn btn-sm @(isOpen ? "btn-outline-danger" : "btn-outline-success")"
+                                onclick="return confirm('@(isOpen ? "Close" : "Open") @months[period.Month-1]?')">
+                            @(isOpen ? "Lock" : "Unlock")
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>
