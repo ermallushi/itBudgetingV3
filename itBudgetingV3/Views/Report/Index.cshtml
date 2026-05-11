@@ -1,0 +1,142 @@
+@model itBudgetingV3.ViewModels.ReportViewModel
+@{
+    ViewData["Title"] = "Budget Summary Report";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4><i class="bi bi-bar-chart me-2"></i>Budget Summary Report</h4>
+</div>
+
+<!-- Version selector -->
+<form method="get" asp-action="Index" class="row g-2 mb-4">
+    <div class="col-auto">
+        <select name="versionId" class="form-select">
+            <option value="">-- Select Version --</option>
+            @foreach (var v in Model.Versions)
+            {
+                if (Model.SelectedVersionId == v.Id)
+                {
+                    <option value="@v.Id" selected>@v.Name (@v.Year) – @v.Status</option>
+                }
+                else
+                {
+                    <option value="@v.Id">@v.Name (@v.Year) – @v.Status</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Load</button>
+    </div>
+    @if (Model.SelectedVersionId.HasValue)
+    {
+        <div class="col-auto">
+            <a asp-controller="Report" asp-action="Export" asp-route-versionId="@Model.SelectedVersionId"
+               class="btn btn-outline-success"><i class="bi bi-file-earmark-excel"></i> Export</a>
+        </div>
+    }
+</form>
+
+@if (Model.SelectedVersionId.HasValue)
+{
+    <!-- KPI cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary text-center">
+                <div class="card-body">
+                    <div class="small text-muted">Total Budget</div>
+                    <div class="h4 text-primary">€ @Model.TotalBudget.ToString("N0")</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning text-center">
+                <div class="card-body">
+                    <div class="small text-muted">Committed (PO)</div>
+                    <div class="h4 text-warning">€ @Model.TotalCommitted.ToString("N0")</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card @(Model.TotalRemaining < 0 ? "border-danger" : "border-success") text-center">
+                <div class="card-body">
+                    <div class="small text-muted">Remaining</div>
+                    <div class="h4 @(Model.TotalRemaining < 0 ? "text-danger" : "text-success")">
+                        € @Model.TotalRemaining.ToString("N0")
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="row g-1">
+                <div class="col-6">
+                    <div class="card border-info text-center">
+                        <div class="card-body py-2">
+                            <div class="small text-muted">CapEx</div>
+                            <div class="fw-bold text-info small">€ @Model.TotalCapEx.ToString("N0")</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card border-secondary text-center">
+                        <div class="card-body py-2">
+                            <div class="small text-muted">OpEx</div>
+                            <div class="fw-bold text-secondary small">€ @Model.TotalOpEx.ToString("N0")</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-hover table-bordered table-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Project</th>
+                <th>Vendor</th>
+                <th>Cost Center</th>
+                <th>Category</th>
+                <th class="text-end">Budget (€)</th>
+                <th class="text-end">Committed (€)</th>
+                <th class="text-end">Remaining (€)</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in Model.Rows)
+            {
+                <tr class="@(r.IsOverBudget ? "table-danger" : "")">
+                    <td>@r.Project</td>
+                    <td>@r.Vendor</td>
+                    <td>@r.CostCenter</td>
+                    <td><span class="badge @(r.Category == "CapEx" ? "bg-info" : "bg-secondary")">@r.Category</span></td>
+                    <td class="text-end">@r.TotalBudget.ToString("N0")</td>
+                    <td class="text-end">@r.TotalCommitted.ToString("N0")</td>
+                    <td class="text-end @(r.TotalRemaining < 0 ? "text-danger fw-bold" : "")">
+                        @r.TotalRemaining.ToString("N0")
+                        @if (r.IsOverBudget) { <span class="badge bg-danger ms-1">OVER</span> }
+                    </td>
+                    <td class="text-center">
+                        @if (r.TotalBudget > 0)
+                        {
+                            var pct = (int)Math.Min(100, Math.Max(0, (r.TotalCommitted / r.TotalBudget) * 100));
+                            <div class="progress" style="height:16px;min-width:60px">
+                                <div class="progress-bar @(pct > 90 ? "bg-danger" : pct > 70 ? "bg-warning" : "bg-success")"
+                                     style="width:@pct%">@pct%</div>
+                            </div>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot class="table-secondary fw-bold">
+            <tr>
+                <td colspan="4">Totals</td>
+                <td class="text-end">€ @Model.TotalBudget.ToString("N0")</td>
+                <td class="text-end">€ @Model.TotalCommitted.ToString("N0")</td>
+                <td class="text-end">€ @Model.TotalRemaining.ToString("N0")</td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+}

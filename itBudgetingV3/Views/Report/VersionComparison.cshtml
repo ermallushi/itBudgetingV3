@@ -1,0 +1,82 @@
+@{
+    ViewData["Title"] = "Version Comparison";
+    var versions = ViewBag.Versions as IEnumerable<itBudgetingV3.Models.BudgetVersion>;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4><i class="bi bi-diagram-3 me-2"></i>Version Comparison</h4>
+</div>
+
+<form method="get" asp-action="VersionComparison" class="row g-2 mb-4">
+    <div class="col-auto">
+        <select name="v1" class="form-select">
+            <option value="">-- Version 1 --</option>
+            @foreach (var v in versions ?? Enumerable.Empty<itBudgetingV3.Models.BudgetVersion>())
+            {
+                if (ViewBag.Version1 != null && ((itBudgetingV3.Models.BudgetVersion)ViewBag.Version1).Id == v.Id)
+                {
+                    <option value="@v.Id" selected>@v.Name</option>
+                }
+                else
+                {
+                    <option value="@v.Id">@v.Name</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <select name="v2" class="form-select">
+            <option value="">-- Version 2 --</option>
+            @foreach (var v in versions ?? Enumerable.Empty<itBudgetingV3.Models.BudgetVersion>())
+            {
+                if (ViewBag.Version2 != null && ((itBudgetingV3.Models.BudgetVersion)ViewBag.Version2).Id == v.Id)
+                {
+                    <option value="@v.Id" selected>@v.Name</option>
+                }
+                else
+                {
+                    <option value="@v.Id">@v.Name</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Compare</button>
+    </div>
+</form>
+
+@if (ViewBag.Version1 != null && ViewBag.Version2 != null)
+{
+    var v1 = ViewBag.Version1 as itBudgetingV3.Models.BudgetVersion;
+    var v2 = ViewBag.Version2 as itBudgetingV3.Models.BudgetVersion;
+    decimal total1 = (decimal)ViewBag.Total1;
+    decimal total2 = (decimal)ViewBag.Total2;
+    decimal diff = total2 - total1;
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-primary text-center">
+                <div class="card-header bg-primary text-white">@v1?.Name</div>
+                <div class="card-body"><div class="h4">€ @total1.ToString("N0")</div></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-secondary text-center">
+                <div class="card-header bg-secondary text-white">@v2?.Name</div>
+                <div class="card-body"><div class="h4">€ @total2.ToString("N0")</div></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card @(diff > 0 ? "border-success" : diff < 0 ? "border-danger" : "border-info") text-center">
+                <div class="card-header @(diff > 0 ? "bg-success" : diff < 0 ? "bg-danger" : "bg-info") text-white">
+                    Difference
+                </div>
+                <div class="card-body">
+                    <div class="h4 @(diff > 0 ? "text-success" : diff < 0 ? "text-danger" : "")">
+                        @(diff > 0 ? "+" : "")€ @diff.ToString("N0")
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

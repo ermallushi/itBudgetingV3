@@ -1,0 +1,337 @@
+@model itBudgetingV3.ViewModels.BudgetGridViewModel
+@{
+    ViewData["Title"] = $"Budget Grid – {Model.Version.Name}";
+    var isLocked = Model.Version.Status == itBudgetingV3.Models.BudgetVersionStatus.Approved
+                || Model.Version.Status == itBudgetingV3.Models.BudgetVersionStatus.Active;
+    var months = new[] { "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec" };
+    var openMonths = Model.Periods.Where(p => p.IsOpen).Select(p => p.Month).ToHashSet();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <div>
+        <h4 class="mb-0">
+            <i class="bi bi-grid-3x3-gap me-2"></i>@Model.Version.Name
+            <span class="badge @(isLocked ? "bg-danger" : "bg-success") ms-2">@Model.Version.Status</span>
+        </h4>
+        <small class="text-muted">@Model.Version.RevisionType – @Model.Version.ClosedMonths closed + @Model.Version.OpenMonths open months</small>
+    </div>
+    <div class="d-flex gap-2">
+        @if (!isLocked)
+        {
+            <button id="btnAddRow" class="btn btn-sm btn-success">
+                <i class="bi bi-plus-lg"></i> Add Row
+            </button>
+            <button id="btnSave" class="btn btn-sm btn-primary">
+                <i class="bi bi-save"></i> Save Changes
+            </button>
+            <a asp-action="Import" asp-route-versionId="@Model.Version.Id" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-upload"></i> Import Excel
+            </a>
+        }
+        <a asp-controller="Report" asp-action="Export" asp-route-versionId="@Model.Version.Id"
+           class="btn btn-sm btn-outline-success">
+            <i class="bi bi-file-earmark-excel"></i> Export
+        </a>
+        <a asp-controller="Version" asp-action="Index" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Versions
+        </a>
+    </div>
+</div>
+
+<!-- Summary cards -->
+<div class="row g-2 mb-3">
+    <div class="col-md-3">
+        <div class="card border-primary">
+            <div class="card-body py-2">
+                <div class="small text-muted">Total Budget</div>
+                <div class="fw-bold text-primary">€ @Model.TotalBudget.ToString("N0")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-warning">
+            <div class="card-body py-2">
+                <div class="small text-muted">Committed (PO)</div>
+                <div class="fw-bold text-warning">€ @Model.TotalCommitted.ToString("N0")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card @(Model.TotalRemaining < 0 ? "border-danger" : "border-success")">
+            <div class="card-body py-2">
+                <div class="small text-muted">Remaining</div>
+                <div class="fw-bold @(Model.TotalRemaining < 0 ? "text-danger" : "text-success")">
+                    € @Model.TotalRemaining.ToString("N0")
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-info">
+            <div class="card-body py-2">
+                <div class="small text-muted">Lines</div>
+                <div class="fw-bold text-info">@Model.Lines.Count()</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter bar -->
+<div class="row g-2 mb-2">
+    <div class="col-auto">
+        <select id="filterCostCenter" class="form-select form-select-sm">
+            <option value="">All Cost Centers</option>
+            @foreach (var cc in Model.CostCenters)
+            {
+                if (Model.FilterCostCenter == cc.Code)
+                {
+                    <option value="@cc.Code" selected>@cc.Code – @cc.Name</option>
+                }
+                else
+                {
+                    <option value="@cc.Code">@cc.Code – @cc.Name</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <select id="filterCategory" class="form-select form-select-sm">
+            <option value="">CapEx & OpEx</option>
+            @if (Model.FilterCategory == itBudgetingV3.Models.BudgetCategory.CapEx)
+            {
+                <option value="0" selected>CapEx</option>
+                <option value="1">OpEx</option>
+            }
+            else if (Model.FilterCategory == itBudgetingV3.Models.BudgetCategory.OpEx)
+            {
+                <option value="0">CapEx</option>
+                <option value="1" selected>OpEx</option>
+            }
+            else
+            {
+                <option value="0">CapEx</option>
+                <option value="1">OpEx</option>
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <button id="btnApplyFilter" class="btn btn-sm btn-outline-primary">Apply Filter</button>
+        <a asp-action="Grid" asp-route-versionId="@Model.Version.Id" class="btn btn-sm btn-outline-secondary">Clear</a>
+    </div>
+</div>
+
+<!-- AG Grid container -->
+<div id="budgetGrid" class="ag-theme-alpine" style="height:560px; width:100%;"></div>
+
+<!-- Legend -->
+<div class="d-flex gap-3 mt-2 small">
+    <span><span class="badge bg-secondary">&nbsp;&nbsp;</span> Locked period</span>
+    <span><span class="badge bg-white border border-secondary" style="color:#333">&nbsp;&nbsp;</span> Editable period</span>
+    <span><span class="badge bg-danger">&nbsp;&nbsp;</span> Over-budget</span>
+</div>
+
+@section Scripts {
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.0/styles/ag-grid.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.0/styles/ag-theme-alpine.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.0/dist/ag-grid-community.min.js"></script>
+
+<script>
+const versionId = @Model.Version.Id;
+const isLocked = @isLocked.ToString().ToLower();
+const openMonths = @System.Text.Json.JsonSerializer.Serialize(openMonths);
+const costCenters = @System.Text.Json.JsonSerializer.Serialize(
+    Model.CostCenters.ToDictionary(c => c.Code, c => $"{c.Code} – {c.Name}"));
+
+const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+let pendingChanges = {};
+let gridApi;
+
+function isMonthEditable(monthIndex) {
+    const monthNum = monthIndex + 1;
+    return !isLocked && openMonths.has ? openMonths.has(monthNum) : openMonths.includes(monthNum);
+}
+
+function monthCellStyle(params, monthIndex) {
+    const month = monthIndex + 1;
+    const editable = !isLocked && (Array.isArray(openMonths) ? openMonths.includes(month) : false);
+    if (!editable) return { background: '#e9ecef', color: '#6c757d' };
+    const total = (params.data.Jan||0)+(params.data.Feb||0)+(params.data.Mar||0)+
+                  (params.data.Apr||0)+(params.data.May||0)+(params.data.Jun||0)+
+                  (params.data.Jul||0)+(params.data.Aug||0)+(params.data.Sep||0)+
+                  (params.data.Oct||0)+(params.data.Nov||0)+(params.data.Dec||0);
+    if (total < 0) return { background: '#f8d7da' };
+    return { background: '#ffffff' };
+}
+
+const monthCols = monthNames.map((m, i) => ({
+    headerName: m,
+    field: m,
+    width: 90,
+    type: 'numericColumn',
+    editable: p => !isLocked && openMonths.includes(i + 1),
+    valueFormatter: p => p.value != null ? p.value.toLocaleString('en-EU', {minimumFractionDigits:0,maximumFractionDigits:0}) : '0',
+    valueParser: p => parseFloat(p.newValue) || 0,
+    cellStyle: p => {
+        const editable = !isLocked && openMonths.includes(i + 1);
+        if (!editable) return { background: '#e9ecef', color: '#6c757d' };
+        return { background: '#ffffff' };
+    },
+    onCellValueChanged: onCellChanged
+}));
+
+const colDefs = [
+    {
+        headerName: '', width: 50, pinned: 'left', cellRenderer: p => {
+            if (isLocked) return '';
+            return `<button class="btn btn-xs btn-outline-danger py-0 px-1 del-btn" data-id="${p.data.Id}" title="Delete"><i class="bi bi-trash"></i></button>`;
+        }, sortable: false, filter: false
+    },
+    { headerName: 'WBS', field: 'WBS', width: 100, editable: !isLocked, pinned: 'left' },
+    { headerName: 'Project', field: 'Project', width: 180, editable: !isLocked, pinned: 'left' },
+    { headerName: 'Vendor', field: 'Vendor', width: 150, editable: !isLocked },
+    {
+        headerName: 'Category', field: 'Category', width: 90, editable: !isLocked,
+        cellEditor: 'agSelectCellEditor',
+        cellEditorParams: { values: ['CapEx', 'OpEx'] },
+        onCellValueChanged: onCellChanged
+    },
+    {
+        headerName: 'Cost Center', field: 'CostCenterCode', width: 130, editable: !isLocked,
+        cellEditor: 'agSelectCellEditor',
+        cellEditorParams: { values: Object.keys(costCenters) },
+        onCellValueChanged: onCellChanged
+    },
+    { headerName: 'SAP Code', field: 'SAPCode', width: 100, editable: !isLocked },
+    { headerName: 'SAP Desc', field: 'SAPDescription', width: 160, editable: !isLocked },
+    { headerName: 'IT Domain', field: 'ITDomain', width: 120, editable: !isLocked },
+    { headerName: 'IT Subdomain', field: 'ITSubdomain', width: 130, editable: !isLocked },
+    { headerName: 'Requestor', field: 'Requestor', width: 120, editable: !isLocked },
+    { headerName: 'EPMO ID', field: 'EPMOId', width: 100, editable: !isLocked },
+    { headerName: 'Comments', field: 'ITComments', width: 150, editable: !isLocked },
+    ...monthCols,
+    {
+        headerName: 'Total', field: 'ForecastTotal', width: 110, pinned: 'right',
+        valueGetter: p => {
+            const d = p.data;
+            return (d.Jan||0)+(d.Feb||0)+(d.Mar||0)+(d.Apr||0)+(d.May||0)+(d.Jun||0)+
+                   (d.Jul||0)+(d.Aug||0)+(d.Sep||0)+(d.Oct||0)+(d.Nov||0)+(d.Dec||0);
+        },
+        valueFormatter: p => '€ ' + p.value.toLocaleString('en-EU', {minimumFractionDigits:0}),
+        cellStyle: p => {
+            if (p.value < 0) return { background: '#f8d7da', fontWeight: 'bold', color: '#721c24' };
+            return { background: '#e8f5e9', fontWeight: 'bold' };
+        },
+        editable: false
+    },
+    {
+        headerName: '', width: 60, pinned: 'right', cellRenderer: p => {
+            return `<a href="/Procurement/PRs/${p.data.Id}" class="btn btn-xs btn-outline-info py-0 px-1" title="PR/PO"><i class="bi bi-receipt"></i></a>`;
+        }, sortable: false, filter: false, editable: false
+    }
+];
+
+function onCellChanged(event) {
+    const id = event.data.Id;
+    if (!pendingChanges[id]) pendingChanges[id] = { ...event.data };
+    else Object.assign(pendingChanges[id], event.data);
+}
+
+async function loadData() {
+    const cc = document.getElementById('filterCostCenter')?.value || '';
+    const cat = document.getElementById('filterCategory')?.value || '';
+    let url = `/Budget/Lines/${versionId}?costCenter=${cc}&category=${cat}`;
+    const resp = await fetch(url);
+    const rows = await resp.json();
+    gridApi.setGridOption('rowData', rows);
+}
+
+async function saveAllChanges() {
+    const changes = Object.values(pendingChanges);
+    if (changes.length === 0) { alert('No changes to save.'); return; }
+    let saved = 0, errors = [];
+    for (const row of changes) {
+        const payload = { ...row, Category: row.Category === 'CapEx' ? 0 : 1, BudgetVersionId: versionId };
+        const r = await fetch('/Budget/SaveLine', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getAntiForgeryToken() },
+            body: JSON.stringify(payload)
+        });
+        const result = await r.json();
+        if (result.success) { saved++; if (row.Id === 0) row.Id = result.id; }
+        else errors.push(result.message);
+    }
+    pendingChanges = {};
+    if (errors.length) alert('Errors:\n' + errors.join('\n'));
+    else { showToast(`${saved} row(s) saved successfully.`, 'success'); loadData(); }
+}
+
+function addNewRow() {
+    const newRow = {
+        Id: 0, BudgetVersionId: versionId, WBS: '', Project: '', Vendor: '',
+        Category: 'CapEx', CostCenterCode: '91I10000',
+        Jan:0,Feb:0,Mar:0,Apr:0,May:0,Jun:0,Jul:0,Aug:0,Sep:0,Oct:0,Nov:0,Dec:0
+    };
+    gridApi.applyTransaction({ add: [newRow] });
+    pendingChanges[0] = newRow;
+}
+
+function getAntiForgeryToken() {
+    return document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+}
+
+function showToast(msg, type = 'info') {
+    const div = document.createElement('div');
+    div.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
+    div.style.zIndex = 9999;
+    div.textContent = msg;
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 3000);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const gridOptions = {
+        columnDefs: colDefs,
+        rowData: [],
+        defaultColDef: {
+            sortable: true, filter: true, resizable: true,
+            cellStyle: { fontSize: '12px' }
+        },
+        suppressRowClickSelection: true,
+        enableCellTextSelection: true,
+        onCellEditingStopped: onCellChanged,
+        getRowStyle: p => {
+            const total = (p.data.Jan||0)+(p.data.Feb||0)+(p.data.Mar||0)+(p.data.Apr||0)+
+                          (p.data.May||0)+(p.data.Jun||0)+(p.data.Jul||0)+(p.data.Aug||0)+
+                          (p.data.Sep||0)+(p.data.Oct||0)+(p.data.Nov||0)+(p.data.Dec||0);
+            if (total < 0) return { background: '#fff3cd' };
+        }
+    };
+
+    const gridDiv = document.getElementById('budgetGrid');
+    gridApi = agGrid.createGrid(gridDiv, gridOptions);
+    loadData();
+
+    document.getElementById('btnSave')?.addEventListener('click', saveAllChanges);
+    document.getElementById('btnAddRow')?.addEventListener('click', addNewRow);
+    document.getElementById('btnApplyFilter')?.addEventListener('click', loadData);
+
+    document.getElementById('budgetGrid').addEventListener('click', async e => {
+        const btn = e.target.closest('.del-btn');
+        if (!btn) return;
+        const id = btn.dataset.id;
+        if (!confirm('Delete this budget line?')) return;
+        if (id == 0) { gridApi.forEachNode(n => { if (n.data.Id == 0) gridApi.applyTransaction({ remove: [n.data] }); }); return; }
+        const r = await fetch(`/Budget/DeleteLine/${id}`, {
+            method: 'DELETE',
+            headers: { 'RequestVerificationToken': getAntiForgeryToken() }
+        });
+        const res = await r.json();
+        if (res.success) { loadData(); showToast('Row deleted.', 'warning'); }
+        else alert('Could not delete row.');
+    });
+});
+</script>
+
+<!-- Hidden antiforgery token for AJAX -->
+<form id="afForm" style="display:none">@Html.AntiForgeryToken()</form>
+}

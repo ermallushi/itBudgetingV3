@@ -1,0 +1,43 @@
+@model itBudgetingV3.ViewModels.PRCreateViewModel
+@{
+    ViewData["Title"] = "Create Purchase Request";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <h4><i class="bi bi-receipt me-2"></i>Create Purchase Request</h4>
+        <p class="text-muted">Line: @Model.BudgetLineInfo | Available: <strong>€ @Model.AvailableBudget.ToString("N2")</strong></p>
+        <hr/>
+
+        <form asp-action="CreatePR" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="BudgetLineId" />
+            <input type="hidden" asp-for="PR.BudgetLineId" value="@Model.BudgetLineId" />
+
+            <div class="mb-3">
+                <label asp-for="PR.PRNumber" class="form-label fw-bold">PR Number</label>
+                <input asp-for="PR.PRNumber" class="form-control" placeholder="e.g. PR-2026-001" required />
+            </div>
+            <div class="mb-3">
+                <label asp-for="PR.Description" class="form-label fw-bold">Description</label>
+                <textarea asp-for="PR.Description" class="form-control" rows="2"></textarea>
+            </div>
+            <div class="mb-3">
+                <label asp-for="PR.Amount" class="form-label fw-bold">Amount (€)</label>
+                <input asp-for="PR.Amount" class="form-control" type="number" step="0.01" min="0" required />
+                @if (Model.AvailableBudget <= 0)
+                {
+                    <div class="text-danger small"><i class="bi bi-exclamation-triangle"></i> Warning: No available budget.</div>
+                }
+            </div>
+            <div class="mb-3">
+                <label asp-for="PR.SharePointUrl" class="form-label fw-bold">SharePoint URL (Approval Document)</label>
+                <input asp-for="PR.SharePointUrl" class="form-control" type="url" placeholder="https://..." />
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i>Create PR</button>
+                <a asp-action="PRs" asp-route-budgetLineId="@Model.BudgetLineId" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

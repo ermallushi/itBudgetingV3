@@ -1,0 +1,99 @@
+@model IEnumerable<itBudgetingV3.Models.PurchaseOrder>
+@{
+    ViewData["Title"] = "Purchase Orders";
+    var pr = ViewBag.PR as itBudgetingV3.Models.PurchaseRequest;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h4><i class="bi bi-file-earmark-text me-2"></i>Purchase Orders</h4>
+        <small class="text-muted">PR: @pr?.PRNumber – @pr?.Description</small>
+    </div>
+    <div>
+        <a asp-action="CreatePO" asp-route-prId="@pr?.Id" class="btn btn-sm btn-success me-2">
+            <i class="bi bi-plus-lg"></i> New PO
+        </a>
+        <a asp-action="PRs" asp-route-budgetLineId="@pr?.BudgetLineId" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to PRs
+        </a>
+    </div>
+</div>
+
+<table class="table table-hover table-bordered">
+    <thead class="table-secondary">
+        <tr>
+            <th>PO #</th>
+            <th>Description</th>
+            <th class="text-end">Approved (€)</th>
+            <th class="text-end">Used (€)</th>
+            <th class="text-end">Remaining (€)</th>
+            <th>Status</th>
+            <th>SharePoint</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var po in Model)
+        {
+            var statusClass = po.Status switch
+            {
+                itBudgetingV3.Models.POStatus.Open => "bg-success",
+                itBudgetingV3.Models.POStatus.PartiallyUsed => "bg-warning text-dark",
+                itBudgetingV3.Models.POStatus.FullyUsed => "bg-secondary",
+                itBudgetingV3.Models.POStatus.Cancelled => "bg-danger",
+                _ => "bg-secondary"
+            };
+            <tr @(po.ApprovedAmount > 0 && po.RemainingAmount < 0 ? "class=table-danger" : "")>
+                <td><strong>@po.PONumber</strong></td>
+                <td>@po.Description</td>
+                <td class="text-end">@po.ApprovedAmount.ToString("N2")</td>
+                <td class="text-end">@po.UsedAmount.ToString("N2")</td>
+                <td class="text-end @(po.RemainingAmount < 0 ? "text-danger fw-bold" : "")">
+                    @po.RemainingAmount.ToString("N2")
+                </td>
+                <td><span class="badge @statusClass">@po.Status</span></td>
+                <td>
+                    @if (!string.IsNullOrEmpty(po.SharePointUrl))
+                    {
+                        <a href="@po.SharePointUrl" target="_blank" class="btn btn-xs btn-outline-info py-0">
+                            <i class="bi bi-box-arrow-up-right"></i>
+                        </a>
+                    }
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        @if (po.Status != itBudgetingV3.Models.POStatus.Cancelled && po.Status != itBudgetingV3.Models.POStatus.FullyUsed)
+                        {
+                            <form asp-action="UpdatePOUsage" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="poId" value="@po.Id" />
+                                <input type="hidden" name="prId" value="@pr?.Id" />
+                                <div class="input-group input-group-sm" style="width:180px">
+                                    <span class="input-group-text">Used</span>
+                                    <input type="number" name="usedAmount" step="0.01" min="0"
+                                           value="@po.UsedAmount" class="form-control" style="width:80px" />
+                                    <button class="btn btn-outline-primary" type="submit">Update</button>
+                                </div>
+                            </form>
+                        }
+                        @if (po.Status != itBudgetingV3.Models.POStatus.Cancelled &&
+                             (User.IsInRole("Manager") || User.IsInRole("Admin")))
+                        {
+                            <form asp-action="CancelPO" method="post" class="d-inline ms-1">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@po.Id" />
+                                <input type="hidden" name="prId" value="@pr?.Id" />
+                                <button class="btn btn-outline-danger btn-sm" type="submit"
+                                        onclick="return confirm('Cancel this PO?')">Cancel</button>
+                            </form>
+                        }
+                    </div>
+                </td>
+            </tr>
+        }
+        @if (!Model.Any())
+        {
+            <tr><td colspan="8" class="text-center text-muted py-4">No purchase orders yet.</td></tr>
+        }
+    </tbody>
+</table>

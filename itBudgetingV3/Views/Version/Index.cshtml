@@ -1,0 +1,138 @@
+@model itBudgetingV3.ViewModels.VersionListViewModel
+@{
+    ViewData["Title"] = "Budget Versions";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2><i class="bi bi-layers me-2"></i>Budget Versions</h2>
+    <div>
+        @if (User.IsInRole("Finance") || User.IsInRole("Manager") || User.IsInRole("Admin"))
+        {
+            <a asp-action="Create" class="btn btn-primary me-2">
+                <i class="bi bi-plus-circle me-1"></i>New Version
+            </a>
+            <a asp-action="Clone" class="btn btn-outline-secondary">
+                <i class="bi bi-copy me-1"></i>Clone (Forecast)
+            </a>
+        }
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover table-bordered align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Year</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Approved By</th>
+                <th class="text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var v in Model.Versions)
+            {
+                var statusClass = v.Status switch
+                {
+                    itBudgetingV3.Models.BudgetVersionStatus.Draft => "bg-secondary",
+                    itBudgetingV3.Models.BudgetVersionStatus.Submitted => "bg-warning text-dark",
+                    itBudgetingV3.Models.BudgetVersionStatus.Approved => "bg-success",
+                    itBudgetingV3.Models.BudgetVersionStatus.Active => "bg-primary",
+                    _ => "bg-secondary"
+                };
+                <tr>
+                    <td><strong>@v.Name</strong><br/><small class="text-muted">@v.Description</small></td>
+                    <td>@v.Year</td>
+                    <td>
+                        @{
+                            var rtLabel = v.RevisionType switch
+                            {
+                                itBudgetingV3.Models.RevisionType.Initial_0_12 => "0+12 (Initial)",
+                                itBudgetingV3.Models.RevisionType.Q1_3_9 => "3+9 (Q1)",
+                                itBudgetingV3.Models.RevisionType.MidYear_5_7 => "5+7 (Mid-Year)",
+                                itBudgetingV3.Models.RevisionType.Final_9_3 => "9+3 (Final)",
+                                _ => "—"
+                            };
+                        }
+                        @rtLabel
+                    </td>
+                    <td><span class="badge @statusClass">@v.Status</span></td>
+                    <td><small>@v.CreatedAt.ToString("dd MMM yyyy")<br/>by @v.CreatedBy</small></td>
+                    <td><small>@v.ApprovedBy</small></td>
+                    <td class="text-center">
+                        <div class="btn-group btn-group-sm">
+                            <a asp-controller="Budget" asp-action="Grid" asp-route-versionId="@v.Id"
+                               class="btn btn-outline-primary" title="Open Grid">
+                                <i class="bi bi-grid"></i>
+                            </a>
+                            <a asp-controller="Procurement" asp-action="Dashboard" asp-route-versionId="@v.Id"
+                               class="btn btn-outline-info" title="Procurement">
+                                <i class="bi bi-receipt"></i>
+                            </a>
+                            <a asp-controller="Transfer" asp-action="Index" asp-route-versionId="@v.Id"
+                               class="btn btn-outline-warning" title="Transfers">
+                                <i class="bi bi-arrow-left-right"></i>
+                            </a>
+                            <a asp-controller="Report" asp-action="Export" asp-route-versionId="@v.Id"
+                               class="btn btn-outline-success" title="Export Excel">
+                                <i class="bi bi-file-earmark-excel"></i>
+                            </a>
+
+                            @if ((User.IsInRole("Finance") || User.IsInRole("Admin")) &&
+                                 (v.Status == itBudgetingV3.Models.BudgetVersionStatus.Draft || v.Status == itBudgetingV3.Models.BudgetVersionStatus.Submitted))
+                            {
+                                <a asp-action="Periods" asp-route-id="@v.Id"
+                                   class="btn btn-outline-secondary" title="Manage Periods">
+                                    <i class="bi bi-calendar-lock"></i>
+                                </a>
+                            }
+
+                            @if (v.Status == itBudgetingV3.Models.BudgetVersionStatus.Draft)
+                            {
+                                <form asp-action="Submit" asp-route-id="@v.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button class="btn btn-outline-primary" title="Submit" type="submit"
+                                            onclick="return confirm('Submit this version for approval?')">
+                                        <i class="bi bi-send"></i>
+                                    </button>
+                                </form>
+                            }
+                            @if (v.Status == itBudgetingV3.Models.BudgetVersionStatus.Submitted &&
+                                 (User.IsInRole("Manager") || User.IsInRole("Admin")))
+                            {
+                                <form asp-action="Approve" asp-route-id="@v.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button class="btn btn-success" title="Approve" type="submit"
+                                            onclick="return confirm('Approve this version?')">
+                                        <i class="bi bi-check-circle"></i>
+                                    </button>
+                                </form>
+                            }
+                            @if (v.Status == itBudgetingV3.Models.BudgetVersionStatus.Approved &&
+                                 User.IsInRole("Admin"))
+                            {
+                                <form asp-action="Activate" asp-route-id="@v.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button class="btn btn-primary" title="Activate" type="submit"
+                                            onclick="return confirm('Activate this version? It will become read-only.')">
+                                        <i class="bi bi-lock"></i>
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Versions.Any())
+            {
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">
+                        No budget versions found. Create one to get started.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

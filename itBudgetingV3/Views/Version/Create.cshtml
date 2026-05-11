@@ -1,0 +1,41 @@
+@model itBudgetingV3.ViewModels.VersionCreateViewModel
+@{
+    ViewData["Title"] = "Create Budget Version";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2><i class="bi bi-plus-circle me-2"></i>Create Budget Version</h2>
+        <hr/>
+
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <div class="mb-3">
+                <label asp-for="Year" class="form-label fw-bold">Year</label>
+                <input asp-for="Year" class="form-control" type="number" min="2020" max="2040" />
+                <span asp-validation-for="Year" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="RevisionType" class="form-label fw-bold">Revision Type</label>
+                <select asp-for="RevisionType" class="form-select"
+                        asp-items="Html.GetEnumSelectList<itBudgetingV3.Models.RevisionType>()">
+                </select>
+                <div class="form-text">
+                    0+12 = Initial plan | 3+9 = After Q1 | 5+7 = Mid-year | 9+3 = Final forecast
+                </div>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label fw-bold">Description (optional)</label>
+                <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg me-1"></i>Create
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }

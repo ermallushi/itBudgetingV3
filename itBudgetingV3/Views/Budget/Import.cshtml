@@ -1,0 +1,38 @@
+@model itBudgetingV3.Models.BudgetVersion
+@{
+    ViewData["Title"] = "Import Budget Lines";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <h2><i class="bi bi-upload me-2"></i>Import Excel – @Model.Name</h2>
+        <hr />
+
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-1"></i>
+            Upload an Excel file (.xlsx) with the following column order:<br/>
+            <strong>WBS | Project | Vendor | CostCenter | SAPCode | SAPDescription | ITDomain | ITSubdomain | CommitmentCode | HyperionCategory | Requestor | EPMOId | ContractDuration | ITComments | Jan … Dec</strong>
+            <br/>Row 1 = headers. Data starts from row 2.
+            <br/>Sheet named "OpEx" → imported as OpEx. Any other name → CapEx.
+        </div>
+
+        <a asp-controller="Budget" asp-action="ExportTemplate" class="btn btn-outline-secondary mb-3">
+            <i class="bi bi-file-earmark-excel me-1"></i>Download Template
+        </a>
+
+        <form asp-action="Import" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="versionId" value="@Model.Id" />
+            <div class="mb-3">
+                <label class="form-label fw-bold">Select Excel File</label>
+                <input type="file" name="file" class="form-control" accept=".xlsx" required />
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-upload me-1"></i>Import
+                </button>
+                <a asp-action="Grid" asp-route-versionId="@Model.Id" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
