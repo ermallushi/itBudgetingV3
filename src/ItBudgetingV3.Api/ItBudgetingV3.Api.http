@@ -1,0 +1,6 @@
+@ItBudgetingV3.Api_HostAddress = http://localhost:5279
+
+GET {{ItBudgetingV3.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
