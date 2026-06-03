@@ -1,8 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "7N7Vxdp2nqE=",
+  "dgSpecHash": "HxU47NkMxXg=",
   "success": true,
   "projectFilePath": "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Domain/ItBudgetingV3.Domain.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "/tmp/codeql-scratch-31f8716adbd360d1/dbs/csharp/working/packages/microsoft.netcore.app.ref/8.0.27/microsoft.netcore.app.ref.8.0.27.nupkg.sha512",
+    "/tmp/codeql-scratch-31f8716adbd360d1/dbs/csharp/working/packages/microsoft.aspnetcore.app.ref/8.0.27/microsoft.aspnetcore.app.ref.8.0.27.nupkg.sha512"
+  ],
   "logs": []
 }

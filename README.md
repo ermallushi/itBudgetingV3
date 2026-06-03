@@ -26,7 +26,7 @@ This repository now includes the foundation phase and a runnable onboarding orch
 ```bash
 dotnet build ItBudgetingV3.slnx
 dotnet test ItBudgetingV3.slnx
-dotnet run --project /tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Api/ItBudgetingV3.Api.csproj
+dotnet run --project src/ItBudgetingV3.Api/ItBudgetingV3.Api.csproj
 ```
 
 ## Notes
