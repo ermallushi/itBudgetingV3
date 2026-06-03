@@ -63,7 +63,7 @@ public sealed class OnboardingServiceTests
     }
 
     [Fact]
-    public async Task InvalidTransition_ThrowsDomainException()
+    public void InvalidTransition_ThrowsDomainException()
     {
         var onboardingCase = new ItBudgetingV3.Domain.Entities.OnboardingCase("EXT-3", JourneyType.Digital, ChannelType.CustomerWeb, "CUST-3");
 

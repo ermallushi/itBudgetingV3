@@ -1,12 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "CcwOb0sGnw4=",
+  "dgSpecHash": "zO7D1JTfDO0=",
   "success": true,
   "projectFilePath": "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Infrastructure/ItBudgetingV3.Infrastructure.csproj",
   "expectedPackageFiles": [
-    "/tmp/codeql-scratch-31f8716adbd360d1/dbs/csharp/working/packages/microsoft.extensions.dependencyinjection.abstractions/8.0.2/microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512",
-    "/tmp/codeql-scratch-31f8716adbd360d1/dbs/csharp/working/packages/microsoft.netcore.app.ref/8.0.27/microsoft.netcore.app.ref.8.0.27.nupkg.sha512",
-    "/tmp/codeql-scratch-31f8716adbd360d1/dbs/csharp/working/packages/microsoft.aspnetcore.app.ref/8.0.27/microsoft.aspnetcore.app.ref.8.0.27.nupkg.sha512"
+    "/home/runner/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/8.0.2/microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512"
   ],
   "logs": []
 }

@@ -551,7 +551,7 @@
     ]
   },
   "packageFolders": {
-    "/tmp/codeql-scratch-31f8716adbd360d1/dbs/csharp/working/packages": {}
+    "/home/runner/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
@@ -559,7 +559,7 @@
       "projectUniqueName": "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Api/ItBudgetingV3.Api.csproj",
       "projectName": "ItBudgetingV3.Api",
       "projectPath": "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Api/ItBudgetingV3.Api.csproj",
-      "packagesPath": "/tmp/codeql-scratch-31f8716adbd360d1/dbs/csharp/working/packages",
+      "packagesPath": "/home/runner/.nuget/packages/",
       "outputPath": "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Api/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
@@ -621,20 +621,6 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "downloadDependencies": [
-          {
-            "name": "Microsoft.AspNetCore.App.Ref",
-            "version": "[8.0.27, 8.0.27]"
-          },
-          {
-            "name": "Microsoft.NETCore.App.Host.linux-x64",
-            "version": "[8.0.27, 8.0.27]"
-          },
-          {
-            "name": "Microsoft.NETCore.App.Ref",
-            "version": "[8.0.27, 8.0.27]"
-          }
-        ],
         "frameworkReferences": {
           "Microsoft.AspNetCore.App": {
             "privateAssets": "none"

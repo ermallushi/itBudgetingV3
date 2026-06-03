@@ -24,8 +24,8 @@ This repository now includes the foundation phase and a runnable onboarding orch
 ## Run
 
 ```bash
-dotnet build ItBudgetingV3.slnx
-dotnet test ItBudgetingV3.slnx
+dotnet build ItBudgetingV3.sln
+dotnet test ItBudgetingV3.sln
 dotnet run --project src/ItBudgetingV3.Api/ItBudgetingV3.Api.csproj
 ```
 
