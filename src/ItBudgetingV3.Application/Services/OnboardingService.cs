@@ -14,6 +14,9 @@ public sealed class OnboardingService(
     IRiskScreeningProvider riskScreeningProvider,
     IDigitalSignatureProvider digitalSignatureProvider) : IOnboardingService
 {
+    private const decimal ReviewThreshold = 50m;
+    private const decimal RejectThreshold = 80m;
+
     public async Task<CaseSummaryResponse> CreateCaseAsync(CreateCaseRequest request, CancellationToken cancellationToken = default)
     {
         var onboardingCase = new OnboardingCase(request.ExternalReference, request.JourneyType, request.CurrentChannel, request.CustomerReference);
@@ -123,11 +126,15 @@ public sealed class OnboardingService(
             AdverseMediaResult = request.AdverseMediaResult,
             FinalRiskScore = request.FraudScore,
             ScreeningReference = providerResponse.ProviderReference,
-            RecommendedAction = request.FraudScore >= 80 ? "reject" : request.FraudScore >= 50 ? "review" : "approve"
+            RecommendedAction = GetRecommendedAction(request.FraudScore)
         };
 
         onboardingCase.AddRiskResult(riskResult, NewCorrelationId());
-        onboardingCase.ApplyRiskDecision(riskResult.RecommendedAction, riskResult.RecommendedAction == "review" ? "ComplianceReview" : string.Empty, riskResult.FraudScore >= 80 ? "High" : riskResult.FraudScore >= 50 ? "Medium" : "Low", NewCorrelationId());
+        onboardingCase.ApplyRiskDecision(
+            riskResult.RecommendedAction,
+            GetAssignedQueue(riskResult.RecommendedAction),
+            GetRiskLevel(riskResult.FraudScore),
+            NewCorrelationId());
         await repository.UpdateAsync(onboardingCase, cancellationToken);
         return Map(onboardingCase);
     }
@@ -220,6 +227,25 @@ public sealed class OnboardingService(
         => Map(await RequireCaseAsync(caseId, cancellationToken));
 
     private static string NewCorrelationId() => Guid.NewGuid().ToString("N");
+
+    private static string GetAssignedQueue(string recommendedAction)
+        => string.Equals(recommendedAction, "review", StringComparison.OrdinalIgnoreCase)
+            ? "ComplianceReview"
+            : string.Empty;
+
+    private static string GetRecommendedAction(decimal fraudScore)
+        => fraudScore >= RejectThreshold
+            ? "reject"
+            : fraudScore >= ReviewThreshold
+                ? "review"
+                : "approve";
+
+    private static string GetRiskLevel(decimal fraudScore)
+        => fraudScore >= RejectThreshold
+            ? "High"
+            : fraudScore >= ReviewThreshold
+                ? "Medium"
+                : "Low";
 
     private static CaseSummaryResponse Map(OnboardingCase onboardingCase)
         => new(
