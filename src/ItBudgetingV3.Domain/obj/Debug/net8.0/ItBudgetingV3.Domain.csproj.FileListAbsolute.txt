@@ -1,0 +1,12 @@
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Domain/bin/Debug/net8.0/ItBudgetingV3.Domain.deps.json
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Domain/bin/Debug/net8.0/ItBudgetingV3.Domain.dll
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Domain/bin/Debug/net8.0/ItBudgetingV3.Domain.pdb
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Domain/obj/Debug/net8.0/ItBudgetingV3.Domain.GeneratedMSBuildEditorConfig.editorconfig
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Domain/obj/Debug/net8.0/ItBudgetingV3.Domain.AssemblyInfoInputs.cache
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Domain/obj/Debug/net8.0/ItBudgetingV3.Domain.AssemblyInfo.cs
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Domain/obj/Debug/net8.0/ItBudgetingV3.Domain.csproj.CoreCompileInputs.cache
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Domain/obj/Debug/net8.0/ItBudgetingV3.Domain.sourcelink.json
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Domain/obj/Debug/net8.0/ItBudgetingV3.Domain.dll
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Domain/obj/Debug/net8.0/refint/ItBudgetingV3.Domain.dll
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Domain/obj/Debug/net8.0/ItBudgetingV3.Domain.pdb
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Domain/obj/Debug/net8.0/ref/ItBudgetingV3.Domain.dll

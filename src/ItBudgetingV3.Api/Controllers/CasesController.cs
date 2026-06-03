@@ -10,7 +10,10 @@ public sealed class CasesController(IOnboardingService onboardingService) : Cont
 {
     [HttpPost]
     public async Task<ActionResult<CaseSummaryResponse>> CreateCase(CreateCaseRequest request, CancellationToken cancellationToken)
-        => CreatedAtAction(nameof(GetCase), new { caseId = (await onboardingService.CreateCaseAsync(request, cancellationToken)).CaseId }, await onboardingService.CreateCaseAsync(request, cancellationToken));
+    {
+        var response = await onboardingService.CreateCaseAsync(request, cancellationToken);
+        return CreatedAtAction(nameof(GetCase), new { caseId = response.CaseId }, response);
+    }
 
     [HttpGet("{caseId:guid}")]
     public async Task<ActionResult<CaseSummaryResponse>> GetCase(Guid caseId, CancellationToken cancellationToken)

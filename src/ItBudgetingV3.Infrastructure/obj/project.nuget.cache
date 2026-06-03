@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "9Bjxe1dGlwk=",
+  "dgSpecHash": "zO7D1JTfDO0=",
   "success": true,
   "projectFilePath": "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Infrastructure/ItBudgetingV3.Infrastructure.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "/home/runner/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/8.0.2/microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512"
+  ],
   "logs": []
 }

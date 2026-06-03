@@ -1,0 +1,16 @@
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Application/bin/Debug/net8.0/ItBudgetingV3.Application.deps.json
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Application/bin/Debug/net8.0/ItBudgetingV3.Application.dll
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Application/bin/Debug/net8.0/ItBudgetingV3.Application.pdb
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Application/bin/Debug/net8.0/ItBudgetingV3.Domain.dll
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Application/bin/Debug/net8.0/ItBudgetingV3.Domain.pdb
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Application/obj/Debug/net8.0/ItBudgetingV3.Application.csproj.AssemblyReference.cache
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Application/obj/Debug/net8.0/ItBudgetingV3.Application.GeneratedMSBuildEditorConfig.editorconfig
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Application/obj/Debug/net8.0/ItBudgetingV3.Application.AssemblyInfoInputs.cache
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Application/obj/Debug/net8.0/ItBudgetingV3.Application.AssemblyInfo.cs
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Application/obj/Debug/net8.0/ItBudgetingV3.Application.csproj.CoreCompileInputs.cache
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Application/obj/Debug/net8.0/ItBudgetingV3.Application.sourcelink.json
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Application/obj/Debug/net8.0/ItBudget.0A75210E.Up2Date
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Application/obj/Debug/net8.0/ItBudgetingV3.Application.dll
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Application/obj/Debug/net8.0/refint/ItBudgetingV3.Application.dll
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Application/obj/Debug/net8.0/ItBudgetingV3.Application.pdb
+/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Application/obj/Debug/net8.0/ref/ItBudgetingV3.Application.dll

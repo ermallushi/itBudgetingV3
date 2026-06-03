@@ -4,14 +4,79 @@
     "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Infrastructure/ItBudgetingV3.Infrastructure.csproj": {}
   },
   "projects": {
-    "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Infrastructure/ItBudgetingV3.Infrastructure.csproj": {
+    "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Application/ItBudgetingV3.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Infrastructure/ItBudgetingV3.Infrastructure.csproj",
-        "projectName": "ItBudgetingV3.Infrastructure",
-        "projectPath": "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Infrastructure/ItBudgetingV3.Infrastructure.csproj",
+        "projectUniqueName": "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Application/ItBudgetingV3.Application.csproj",
+        "projectName": "ItBudgetingV3.Application",
+        "projectPath": "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Application/ItBudgetingV3.Application.csproj",
         "packagesPath": "/home/runner/.nuget/packages/",
-        "outputPath": "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Infrastructure/obj/",
+        "outputPath": "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Application/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/runner/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "framework": "net8.0",
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Domain/ItBudgetingV3.Domain.csproj": {
+                "projectPath": "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Domain/ItBudgetingV3.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "framework": "net8.0",
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.300/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Domain/ItBudgetingV3.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Domain/ItBudgetingV3.Domain.csproj",
+        "projectName": "ItBudgetingV3.Domain",
+        "projectPath": "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Domain/ItBudgetingV3.Domain.csproj",
+        "packagesPath": "/home/runner/.nuget/packages/",
+        "outputPath": "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Domain/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/runner/.nuget/NuGet/NuGet.Config"
@@ -45,6 +110,80 @@
         "net8.0": {
           "framework": "net8.0",
           "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.300/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Infrastructure/ItBudgetingV3.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Infrastructure/ItBudgetingV3.Infrastructure.csproj",
+        "projectName": "ItBudgetingV3.Infrastructure",
+        "projectPath": "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Infrastructure/ItBudgetingV3.Infrastructure.csproj",
+        "packagesPath": "/home/runner/.nuget/packages/",
+        "outputPath": "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Infrastructure/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/runner/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "framework": "net8.0",
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Application/ItBudgetingV3.Application.csproj": {
+                "projectPath": "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Application/ItBudgetingV3.Application.csproj"
+              },
+              "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Domain/ItBudgetingV3.Domain.csproj": {
+                "projectPath": "/tmp/workspace/ermallushi/itBudgetingV3/src/ItBudgetingV3.Domain/ItBudgetingV3.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "framework": "net8.0",
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.Extensions.DependencyInjection.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.2, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
